@@ -51,21 +51,21 @@ def main() -> None:
     X_scaled = scaler.fit_transform(X)
     
     print("Creating TSNE projection (lens)...")
-    # Perplexity=10 balances local and global structure preservation for small datasets
-    tsne = TSNE(n_components=2, perplexity=10, random_state=42)
+    # Perplexity=5 is optimized for small datasets (N=18) to preserve local structure
+    tsne = TSNE(n_components=2, perplexity=5, random_state=42)
     lens = tsne.fit_transform(X_scaled)
     
     print("Initializing KeplerMapper...")
     mapper = km.KeplerMapper(verbose=1)
     
     print("Creating mapper graph...")
-    # DBSCAN parameters (eps=1.0, min_samples=2) identify clusters in the 18-school dataset
-    # Cover with 4 cubes and 50% overlap balances resolution with interpretability
+    # DBSCAN min_samples=1 ensures all 18 schools are included (no noise dropped)
+    # eps=1.5 allows slightly looser clusters within cover elements to encourage connectivity
     graph = mapper.map(
         lens,
         X=X_scaled,
-        clusterer=DBSCAN(eps=1.0, min_samples=2),
-        cover=Cover(n_cubes=4, perc_overlap=0.5)
+        clusterer=DBSCAN(eps=1.5, min_samples=1),
+        cover=Cover(n_cubes=5, perc_overlap=0.5)
     )
     
     print("Visualizing mapper graph...")
