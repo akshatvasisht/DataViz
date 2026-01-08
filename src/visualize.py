@@ -45,11 +45,7 @@ def main() -> None:
     
     tooltips = []
     for _, row in df.iterrows():
-        tooltip = (f"School: {row['school']}\n"
-                  f"Song: {row['song_name']}\n"
-                  f"Win Rate: {row['win_perc']}\n"
-                  f"Aggression: {row['aggression_score']}\n"
-                  f"Cliche: {row['cliche_score']}")
+        tooltip = (f"<b>{row['school']}</b><br><i>{row['song_name']}</i><br><hr>Win Rate: {row['win_perc']}<br>Aggression: {row['aggression_score']}/10")
         tooltips.append(tooltip)
     tooltips = np.array(tooltips)
     
@@ -66,13 +62,13 @@ def main() -> None:
     mapper = km.KeplerMapper(verbose=1)
     
     print("Creating mapper graph...")
-    # DBSCAN parameters (eps=1.0, min_samples=1) identify clusters in the 18-school dataset
-    # Cover with 4 cubes and 40% overlap balances resolution with interpretability
+    # DBSCAN parameters (eps=1.0, min_samples=2) identify clusters in the 18-school dataset
+    # Cover with 4 cubes and 50% overlap balances resolution with interpretability
     graph = mapper.map(
         lens,
         X=X_scaled,
-        clusterer=DBSCAN(eps=1.0, min_samples=1),
-        cover=Cover(n_cubes=4, perc_overlap=0.4)
+        clusterer=DBSCAN(eps=1.0, min_samples=2),
+        cover=Cover(n_cubes=4, perc_overlap=0.5)
     )
     
     print("Visualizing mapper graph...")
@@ -85,7 +81,12 @@ def main() -> None:
         custom_tooltips=tooltips,
         color_values=df['win_perc'],
         color_function_name="Win Percentage",
-        node_color_function=["mean", "max", "min"]
+        node_color_function=["mean", "max", "min"],
+        custom_meta={
+            "Insight": "The 'Winning Manifold' (Yellow loop) connects schools with high energy and winning records.",
+            "Dead Zones": "Isolated Purple nodes represent schools with low win rates and generic song structures.",
+            "Methodology": "TDA (Mapper) on 5-dimensional musical feature space."
+        }
     )
     
     num_nodes = len(graph['nodes'])
@@ -98,6 +99,22 @@ def main() -> None:
     print(f"Number of edges: {num_edges}")
     print(f"{'='*60}")
     print(f"\nVisualization saved to: docs/index.html")
+    
+    # Post-process HTML to remove favicon and hide logo
+    html_path = os.path.join(base_dir, 'docs', 'index.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Remove favicon link
+    content = content.replace('href="http://i.imgur.com/axOG6GJ.jpg"', '')
+    
+    # Hide logo div
+    content = content.replace('<div class="wrap-logo">', '<div class="wrap-logo" style="display:none;">')
+    
+    with open(html_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    print("Cleaned up HTML header and logo.")
 
 
 if __name__ == '__main__':
