@@ -67,12 +67,12 @@ def main() -> None:
     
     print("Creating mapper graph...")
     # DBSCAN parameters (eps=1.0, min_samples=1) identify clusters in the 18-school dataset
-    # Cover with 10 cubes and 40% overlap balances resolution with interpretability
+    # Cover with 4 cubes and 40% overlap balances resolution with interpretability
     graph = mapper.map(
         lens,
         X=X_scaled,
         clusterer=DBSCAN(eps=1.0, min_samples=1),
-        cover=Cover(n_cubes=10, perc_overlap=0.4)
+        cover=Cover(n_cubes=4, perc_overlap=0.4)
     )
     
     print("Visualizing mapper graph...")
@@ -81,7 +81,7 @@ def main() -> None:
     mapper.visualize(
         graph,
         path_html=os.path.join(base_dir, 'docs', 'index.html'),
-        title="The Winning Manifold: Big Ten Fight Song Topology",
+        title="Big Ten Fight Song Topology",
         custom_tooltips=tooltips,
         color_values=df['win_perc'],
         color_function_name="Win Percentage",
@@ -102,4 +102,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
