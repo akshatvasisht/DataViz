@@ -31,8 +31,10 @@ def main() -> None:
     components that represent the "Winning Manifold" - schools with similar fight song
     characteristics and win rates.
     """
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     print("Loading processed fight songs data...")
-    df = pd.read_csv('data/processed_fight_songs.csv')
+    df = pd.read_csv(os.path.join(base_dir, 'data', 'processed_fight_songs.csv'))
     
     print(f"Loaded {len(df)} schools")
     
@@ -74,10 +76,11 @@ def main() -> None:
     )
     
     print("Visualizing mapper graph...")
-    os.makedirs('docs', exist_ok=True)
+    docs_dir = os.path.join(base_dir, 'docs')
+    os.makedirs(docs_dir, exist_ok=True)
     mapper.visualize(
         graph,
-        path_html="docs/index.html",
+        path_html=os.path.join(base_dir, 'docs', 'index.html'),
         title="The Winning Manifold: Big Ten Fight Song Topology",
         custom_tooltips=tooltips,
         color_values=df['win_perc'],

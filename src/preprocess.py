@@ -12,6 +12,7 @@ The output dataset is used for mapper graph construction to identify structural
 relationships between fight songs based on lyrical and musical characteristics.
 """
 
+import os
 import pandas as pd
 import numpy as np
 
@@ -58,8 +59,10 @@ def main() -> None:
     data analysis. The original dataset is not modified; output is written to
     a separate file to maintain data integrity.
     """
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     print("Loading fight-songs.csv...")
-    df = pd.read_csv('data/fight-songs.csv')
+    df = pd.read_csv(os.path.join(base_dir, 'data', 'fight-songs.csv'))
     
     # Update conference affiliations to reflect 2024 Big Ten expansion
     print("Remapping conferences...")
@@ -97,7 +100,7 @@ def main() -> None:
     df_big10['energy_score'] = normalize_to_1_10(df_big10['bpm'])
     
     print("Saving processed data...")
-    df_big10.to_csv('data/processed_fight_songs.csv', index=False)
+    df_big10.to_csv(os.path.join(base_dir, 'data', 'processed_fight_songs.csv'), index=False)
     
     print(f"\nProcessing complete!")
     print(f"Saved {len(df_big10)} Big Ten schools to data/processed_fight_songs.csv")
@@ -107,3 +110,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
