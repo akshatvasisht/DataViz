@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""
+Topological Data Analysis (TDA) pipeline for Big Ten fight songs.
+
+This script constructs a mapper graph using KeplerMapper to identify structural
+relationships between fight songs based on high-dimensional feature space.
+The visualization reveals the "Winning Manifold" - connected regions of schools
+with both high spirit scores and high win rates.
+"""
+
+import os
+
+import numpy as np
+import pandas as pd
+
+from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
+
+import kmapper as km
+from kmapper import Cover
+
+
+def main() -> None:
+    """
+    Construct mapper graph from fight song features using topological data analysis.
+
+    The pipeline applies TDA to identify manifold structures in the high-dimensional
+    feature space. TSNE provides a 2D lens for dimensionality reduction while preserving
+    local structure. DBSCAN clustering within cover elements identifies connected
+    components that represent the "Winning Manifold" - schools with similar fight song
+    characteristics and win rates.
+    """
+    print("Loading processed fight songs data...")
+    df = pd.read_csv('data/processed_fight_songs.csv')
+    
+    print(f"Loaded {len(df)} schools")
+    
+    feature_columns = ['energy_score', 'win_perc', 'aggression_score', 
+                      'cliche_score', 'complexity_score']
+    X = df[feature_columns].values
+    win_perc = df['win_perc'].values
+    
+    tooltips = []
+    for _, row in df.iterrows():
+        tooltip = (f"School: {row['school']}\n"
+                  f"Song: {row['song_name']}\n"
+                  f"Win Rate: {row['win_perc']}\n"
+                  f"Aggression: {row['aggression_score']}\n"
+                  f"Cliche: {row['cliche_score']}")
+        tooltips.append(tooltip)
+    tooltips = np.array(tooltips)
+    
+    print("Scaling features...")
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    print("Creating TSNE projection (lens)...")
+    # Perplexity=10 balances local and global structure preservation for small datasets
+    tsne = TSNE(n_components=2, perplexity=10, random_state=42)
+    lens = tsne.fit_transform(X_scaled)
+    
+    print("Initializing KeplerMapper...")
+    mapper = km.KeplerMapper(verbose=1)
+    
+    print("Creating mapper graph...")
+    # DBSCAN parameters (eps=1.0, min_samples=1) identify clusters in the 18-school dataset
+    # Cover with 10 cubes and 40% overlap balances resolution with interpretability
+    graph = mapper.map(
+        lens,
+        X=X_scaled,
+        clusterer=DBSCAN(eps=1.0, min_samples=1),
+        cover=Cover(n_cubes=10, perc_overlap=0.4)
+    )
+    
+    print("Visualizing mapper graph...")
+    os.makedirs('docs', exist_ok=True)
+    mapper.visualize(
+        graph,
+        path_html="docs/index.html",
+        title="The Winning Manifold: Big Ten Fight Song Topology",
+        custom_tooltips=tooltips,
+        color_values=df['win_perc'],
+        color_function_name="Win Percentage",
+        node_color_function=["mean", "max", "min"]
+    )
+    
+    num_nodes = len(graph['nodes'])
+    num_edges = sum(len(edges) for edges in graph['links'].values()) // 2
+    
+    print(f"\n{'='*60}")
+    print("Mapper Graph Statistics:")
+    print(f"{'='*60}")
+    print(f"Number of nodes: {num_nodes}")
+    print(f"Number of edges: {num_edges}")
+    print(f"{'='*60}")
+    print(f"\nVisualization saved to: docs/index.html")
+
+
+if __name__ == '__main__':
+    main()
+
