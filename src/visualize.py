@@ -60,12 +60,12 @@ def main() -> None:
     
     print("Creating mapper graph...")
     # DBSCAN min_samples=1 ensures all 18 schools are included (no noise dropped)
-    # eps=1.5 allows slightly looser clusters within cover elements to encourage connectivity
+    # eps=2.0: Increases connection distance to bridge gaps between schools
     graph = mapper.map(
         lens,
         X=X_scaled,
-        clusterer=DBSCAN(eps=1.5, min_samples=1),
-        cover=Cover(n_cubes=5, perc_overlap=0.5)
+        clusterer=DBSCAN(eps=2.0, min_samples=1),
+        cover=Cover(n_cubes=2, perc_overlap=0.5)
     )
     
     print("Visualizing mapper graph...")
