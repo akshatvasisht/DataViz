@@ -1,43 +1,61 @@
 # Environment Setup Instructions
 
 ## Prerequisites
-* [Language/Runtime Version]
-* [System Dependency 1]
-* [System Dependency 2]
+
+* Python 3.x
+* pip (Python package manager)
 
 ## Installation
 
-### 1. Clone & Install
+### 1. Clone Repository
+
 ```bash
-git clone [https://github.com/username/repo.git](https://github.com/username/repo.git)
-cd repo
+git clone <repository-url>
+cd DataViz
 ```
-[install command, e.g., npm install or pip install -r requirements.txt]
 
-### 2. Environment Variables
-Create a .env file in the root directory:
+### 2. Install Dependencies
 
-Ini, TOML
+```bash
+pip install -r requirements.txt
+```
 
-# Required
-API_KEY=your_key_here
-DB_URL=postgres://...
+### 3. Data Preparation
 
-# Optional
-DEBUG_MODE=true
-Running the Application
-Development Mode
-Bash
+Ensure the FiveThirtyEight fight songs dataset (`fight-songs.csv`) is placed in the `data/` directory. The dataset is available from FiveThirtyEight's GitHub repository.
 
-[command to run dev server]
-Production Build
-Bash
+## Running the Application
 
-[command to build/run prod]
-Troubleshooting
-Issue: [Common Error]
+### Step 1: Preprocess Data
 
-Fix: [Solution]
+```bash
+python src/preprocess.py
+```
 
+This script:
+* Filters the dataset to Big Ten conference schools
+* Adds historical win percentage data
+* Engineers features (energy_score, aggression_score, cliche_score, complexity_score)
+* Outputs `data/processed_fight_songs.csv`
 
----
+### Step 2: Generate Visualization
+
+```bash
+python src/visualize.py
+```
+
+This script:
+* Loads the processed dataset
+* Applies topological data analysis using KeplerMapper
+* Generates an interactive HTML visualization
+* Outputs `docs/index.html`
+
+## Deployment
+
+The visualization can be deployed to GitHub Pages by:
+
+1. Pushing the repository to GitHub
+2. Enabling GitHub Pages in repository settings
+3. Setting the source to the `docs/` directory
+
+Alternatively, use the provided `deploy.sh` script to initialize a git repository and prepare for deployment.

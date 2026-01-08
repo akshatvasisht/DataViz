@@ -5,6 +5,7 @@ This document describes the system architecture, components, and data flow for t
 ---
 
 ## Glossary
+
 * **Manifold:** A topological structure representing connected regions in high-dimensional space where data points share similar characteristics
 * **Winning Manifold:** A connected loop of schools that have both high spirit scores and high win rates, representing the "sweet spot" of successful feature combinations
 * **Dead Zones:** Feature combinations that historically fail, appearing as isolated regions or disconnected components in the visualization where schools with low performance metrics cluster
@@ -14,19 +15,24 @@ This document describes the system architecture, components, and data flow for t
 
 ## System Overview
 
-The system implements a pipeline architecture consisting of data preprocessing, feature extraction, topological analysis, and visualization generation. The workflow executes in Google Colab, producing a standalone HTML file for static hosting.
+The system implements a pipeline architecture consisting of data preprocessing, feature extraction, topological analysis, and visualization generation. The workflow produces a standalone HTML file for static hosting.
 
 ## Directory Structure
+
 ```
-/root
+DataViz/
+├── src/
+│   ├── preprocess.py
+│   └── visualize.py
 ├── data/
-│   └── fight_songs.csv
-├── notebooks/
-│   └── analysis.ipynb
-├── output/
-│   └── visualization.html
-└── docs/
-    └── ARCHITECTURE.md
+│   ├── fight-songs.csv
+│   └── processed_fight_songs.csv
+├── docs/
+│   ├── index.html
+│   ├── ARCHITECTURE.md
+│   └── STYLE.md
+├── requirements.txt
+└── deploy.sh
 ```
 
 ## Technology Stack
@@ -35,18 +41,22 @@ The system implements a pipeline architecture consisting of data preprocessing, 
 | :--- | :--- | :--- |
 | **Language** | Python | Required for KeplerMapper and data processing libraries |
 | **TDA Library** | KeplerMapper | Generates mapper graphs from high-dimensional data |
-| **Environment** | Google Colab | Browser-based execution without local installation |
 | **Visualization** | HTML/JavaScript | Standalone output for static hosting |
 | **Hosting** | GitHub Pages | Static file hosting |
 
 ## Data Flow
-1.  **Input:** FiveThirtyEight fight song dataset (CSV) containing school names, lyrics, and song metrics
-2.  **Feature Engineering:** Three additional features are added via lyrical analysis: Aggression_Score, Complexity_Score, and Cliché_Score (1-10 scale)
-3.  **Feature Vector Construction:** Each school is represented as a point in high-dimensional space using tempo, lyrical scores, and other song characteristics
-4.  **Topological Analysis:** KeplerMapper applies TDA to construct a mapper graph that preserves topological relationships in the data
-5.  **Output:** Interactive HTML file containing a network visualization with nodes colored by win percentage and hover interactions displaying statistics
+
+1. **Input:** FiveThirtyEight fight song dataset (`fight-songs.csv`) containing school names, lyrics, and song metrics
+2. **Preprocessing:** `preprocess.py` filters to Big Ten schools, adds historical win percentages, and engineers four features from existing dataset columns:
+   - `energy_score`: Normalized tempo (BPM) on 1-10 scale
+   - `aggression_score`: Composite of fight frequency and victory language, normalized to 1-10 scale
+   - `cliche_score`: Lyrical conventionality based on trope_count
+   - `complexity_score`: Normalized song duration on 1-10 scale
+3. **Feature Vector Construction:** Each school is represented as a point in 5-dimensional space using `energy_score`, `win_perc`, `aggression_score`, `cliche_score`, and `complexity_score`
+4. **Topological Analysis:** `visualize.py` applies TSNE for dimensionality reduction, then KeplerMapper constructs a mapper graph using DBSCAN clustering that preserves topological relationships in the data
+5. **Output:** Interactive HTML file (`docs/index.html`) containing a network visualization with nodes colored by win percentage and hover interactions displaying school statistics
 
 ## Design Constraints
+
 * **Static Output:** The visualization is a standalone HTML file rather than a dynamic web application to simplify hosting and ensure reproducibility
-* **Feature Extraction:** Lyrical analysis is performed manually using LLM rather than automated audio processing to reduce computational complexity
-* **Execution Environment:** Google Colab is used to eliminate local installation requirements, at the cost of some development workflow features
+* **Feature Engineering:** Features are derived from existing dataset columns using mathematical transformations (normalization, weighted sums) rather than external analysis tools

@@ -12,11 +12,9 @@ import os
 
 import numpy as np
 import pandas as pd
-
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
-
 import kmapper as km
 from kmapper import Cover
 
@@ -41,7 +39,6 @@ def main() -> None:
     feature_columns = ['energy_score', 'win_perc', 'aggression_score', 
                       'cliche_score', 'complexity_score']
     X = df[feature_columns].values
-    win_perc = df['win_perc'].values
     
     tooltips = []
     for _, row in df.iterrows():
@@ -100,15 +97,12 @@ def main() -> None:
     print(f"{'='*60}")
     print(f"\nVisualization saved to: docs/index.html")
     
-    # Post-process HTML to remove favicon and hide logo
+    # Remove external dependencies and branding for standalone visualization
     html_path = os.path.join(base_dir, 'docs', 'index.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Remove favicon link
     content = content.replace('href="http://i.imgur.com/axOG6GJ.jpg"', '')
-    
-    # Hide logo div
     content = content.replace('<div class="wrap-logo">', '<div class="wrap-logo" style="display:none;">')
     
     with open(html_path, 'w', encoding='utf-8') as f:

@@ -13,8 +13,9 @@ relationships between fight songs based on lyrical and musical characteristics.
 """
 
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 # Historical win percentage data (all-time records)
 # Source: https://en.wikipedia.org/wiki/Big_Ten_Conference#All-time_school_records

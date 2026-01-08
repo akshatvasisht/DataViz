@@ -6,27 +6,35 @@ This project applies Topological Data Analysis (TDA) to visualize structural rel
 
 The visualization identifies structural patterns in the data, including the "Winning Manifold"—a connected loop of schools with both high spirit scores and high win rates—as well as "Dead Zones" representing feature combinations that historically fail.
 
+This visualization was submitted to [Bucky's Data Viz Challenge](https://data.wisc.edu/love-data-week/buckys-data-viz-challenge/).
+
 ### Features
+
 * **Network Visualization:** Interactive HTML network graph with schools as nodes connected by similarity relationships
 * **Topological Analysis:** TDA identifies manifold structures and clustering patterns in high-dimensional feature space
 * **Winning Manifold:** A connected loop of schools that have both high spirit scores and high win rates
 * **Dead Zones:** Feature combinations that historically fail, appearing as isolated regions or disconnected components in the visualization
-* **Interactive Exploration:** Hover interactions display school statistics including Win %, BPM, and Vibe Score
+* **Interactive Exploration:** Hover interactions display school statistics including Win %, Aggression Score, and Energy Score
 * **Color Encoding:** Nodes are colored by historical win percentage
 
 ---
 
 ## Methodology
 
-This project uses KeplerMapper, a Python library for TDA, to construct a mapper graph from high-dimensional feature vectors. The input data consists of fight song characteristics from the FiveThirtyEight dataset, enriched with additional metrics for aggression, complexity, and cliché scores derived from lyrical analysis.
+This project uses KeplerMapper, a Python library for TDA, to construct a mapper graph from high-dimensional feature vectors. The input data consists of fight song characteristics from the FiveThirtyEight dataset, enriched with four engineered features:
+
+* **energy_score:** Normalized tempo (BPM) on a 1-10 scale
+* **aggression_score:** Composite metric weighting fight frequency and victory language, normalized to 1-10 scale
+* **cliche_score:** Lyrical conventionality based on trope_count from the original dataset
+* **complexity_score:** Normalized song duration on a 1-10 scale
+
+The mapper graph is constructed using TSNE for dimensionality reduction and DBSCAN for clustering within cover elements.
 
 ## Documentation
 
-* **[SETUP.md](SETUP.md):** Installation, environment configuration, and startup 
-instructions.
-* **[ARCHITECTURE.md](docs/ARCHITECTURE.md):** System design, data flow, and technical implementation details.
-* **[STYLE.md](docs/STYLE.md):** Coding standards, testing guidelines, and repository 
-conventions.
+* **[SETUP.md](SETUP.md):** Installation and execution instructions
+* **[ARCHITECTURE.md](docs/ARCHITECTURE.md):** System design, data flow, and technical implementation details
+* **[STYLE.md](docs/STYLE.md):** Coding standards and repository conventions
 
 ## License
 
